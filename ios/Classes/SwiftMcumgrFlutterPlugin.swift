@@ -176,19 +176,26 @@ public class SwiftMcumgrFlutterPlugin: NSObject, FlutterPlugin {
     }
     
     private func update(call: FlutterMethodCall) throws {
+        print(">>>>>>>>>>>>>>>>>>>>>>>>> UPDATE STEP 1")
         guard let data = call.arguments as? FlutterStandardTypedData else {
             throw FlutterError(code: ErrorCode.wrongArguments.rawValue, message: "Can not parse provided arguments", details: call)
         }
+        print(">>>>>>>>>>>>>>>>>>>>>>>>> UPDATE STEP 2")
         
         let args = try ProtoUpdateWithImageCallArguments(serializedData: data.data)
+        print(">>>>>>>>>>>>>>>>>>>>>>>>> UPDATE STEP 3")
         guard let manager = updateManagers[args.deviceUuid] else {
             throw FlutterError(code: ErrorCode.updateManagerDoesNotExist.rawValue, message: "Update manager does not exist", details: call)
         }
+        print(">>>>>>>>>>>>>>>>>>>>>>>>> UPDATE STEP 4")
         
         let images = args.images.map { (Int($0.key), $0.value) }
+        print(">>>>>>>>>>>>>>>>>>>>>>>>> UPDATE STEP 5")
         let config = args.hasConfiguration ? FirmwareUpgradeConfiguration(proto: args.configuration) : FirmwareUpgradeConfiguration()
+        print(">>>>>>>>>>>>>>>>>>>>>>>>> UPDATE STEP 6")
         
         try manager.update(images: images, config: config)
+        print(">>>>>>>>>>>>>>>>>>>>>>>>> UPDATE STEP 7")
     }
     
     private func kill(call: FlutterMethodCall) throws {
