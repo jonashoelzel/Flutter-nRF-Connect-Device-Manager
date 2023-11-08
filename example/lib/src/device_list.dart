@@ -6,8 +6,6 @@ import 'package:mcumgr_flutter_example/src/utils/set_ext.dart';
 import 'package:mcumgr_flutter_example/src/utils/string_ext.dart';
 
 class DeviceList extends StatelessWidget {
-  final flutterBluePlus = FlutterBluePlus.instance;
-
   DeviceList({Key? key}) : super(key: key);
 
   @override
@@ -18,7 +16,7 @@ class DeviceList extends StatelessWidget {
         if (!snapshot.hasData)
           return CircularProgressIndicator();
         return StreamBuilder(
-            stream: flutterBluePlus.scanResults.scan<Set<ScanResult>>((accumulated, value, index) => ((accumulated) ?? Set()).concat(value.toSet()), Set()),
+            stream: FlutterBluePlus.scanResults.scan<Set<ScanResult>>((accumulated, value, index) => ((accumulated) ?? Set()).concat(value.toSet()), Set()),
             builder: (c, s) {
               if ((s.connectionState == ConnectionState.active || s.connectionState == ConnectionState.done) && s.hasData) {
                 return _buildListView((s.data as Set<ScanResult>).toList());
@@ -30,11 +28,12 @@ class DeviceList extends StatelessWidget {
     );
   }
 
-  Future<void> _startScan() async {
-    if (flutterBluePlus.isScanningNow) {
-      await flutterBluePlus.stopScan();
+  Future<bool> _startScan() async {
+    if (FlutterBluePlus.isScanningNow) {
+      await FlutterBluePlus.stopScan();
     }
-    flutterBluePlus.startScan(timeout: Duration(seconds: 5));
+    FlutterBluePlus.startScan(timeout: Duration(seconds: 5));
+    return true;
   }
 
   ListView _buildListView(List<ScanResult> scanResults) {
