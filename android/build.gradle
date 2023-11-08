@@ -2,14 +2,14 @@ group 'no.nordicsemi.android.mcumgr_flutter'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.8.10'
+    ext.kotlin_version = '1.9.10'
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.android.tools.build:gradle:8.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.squareup.wire:wire-gradle-plugin:4.5.2'
     }
@@ -27,6 +27,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.squareup.wire'
 
 android {
+    namespace "no.nordicsemi.android.mcumgr_flutter"
     compileSdkVersion 33
 
     sourceSets {
@@ -39,6 +40,15 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
 wire {
@@ -50,5 +60,5 @@ wire {
 
 dependencies {
     implementation 'no.nordicsemi.android:mcumgr-ble:1.6.0'
-    implementation  'com.google.protobuf:protobuf-kotlin-lite:3.21.1'
+    implementation 'com.google.protobuf:protobuf-kotlin-lite:3.21.1'
 }

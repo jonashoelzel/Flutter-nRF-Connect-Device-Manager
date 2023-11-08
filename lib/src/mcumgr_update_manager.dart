@@ -14,22 +14,21 @@ class DeviceUpdateManager extends FirmwareUpdateManager {
   final String _deviceId;
   final McuMgrLogger _logger;
 
-  DeviceUpdateManager._deviceIdentifier(this._deviceId)
-      : this._logger = McuMgrLogger.deviceIdentifier(_deviceId);
+  DeviceUpdateManager._deviceIdentifier(this._deviceId) : this._logger = McuMgrLogger.deviceIdentifier(_deviceId);
 
   // STREAM CONTROLLERS
   // All stream controllers are closed in the `kill()` method.
   // ignore: close_sinks
-  final StreamController<ProgressUpdate> _progressStreamController =
-      StreamController.broadcast();
+  final StreamController<ProgressUpdate> _progressStreamController = StreamController.broadcast();
+
   // ignore: close_sinks
   StreamController<FirmwareUpgradeState>? _updateStateStreamController;
+
   // ignore: close_sinks
-  final StreamController<McuLogMessage> _logMessageStreamController =
-      StreamController.broadcast();
+  final StreamController<McuLogMessage> _logMessageStreamController = StreamController.broadcast();
+
   // ignore: close_sinks
-  final StreamController<bool>? _updateInProgressStreamController =
-      BehaviorSubject.seeded(false);
+  final StreamController<bool>? _updateInProgressStreamController = BehaviorSubject.seeded(false);
 
   // STREAMS
   Stream<ProgressUpdate> get progressStream {
@@ -56,9 +55,11 @@ class DeviceUpdateManager extends FirmwareUpdateManager {
 
   static Future<DeviceUpdateManager> getInstance(String deviceId) async {
     try {
-      await methodChannel.invokeMethod(
-          UpdateManagerMethod.initializeUpdateManager.rawValue, deviceId);
+      print('>>>>>>>>>>>>>>>>>>>>>>>>> INVOKING METHOD ${UpdateManagerMethod.initializeUpdateManager.rawValue} with device UUID = "$deviceId"');
+      await methodChannel.invokeMethod(UpdateManagerMethod.initializeUpdateManager.rawValue, deviceId);
+      print('>>>>>>>>>>>>>>>>>>>>>>>>> AFTER INVOKE METHOD');
     } catch (e) {
+      print('>>>>>>>>>>>>>>>>>>>>>>>>> INVOKE METHOD ERROR: $e');
       // TODO: Handle Flutter error
       print(e);
     }
@@ -80,18 +81,12 @@ class DeviceUpdateManager extends FirmwareUpdateManager {
   }
 
   Future<void> updateMap(Map<int, Uint8List> images) async {
-    await methodChannel.invokeMethod(
-        UpdateManagerMethod.update.rawValue,
-        ProtoUpdateWithImageCallArguments(
-            deviceUuid: this._deviceId,
-            images: images.entries
-                .map((e) => Pair(key: e.key, value: e.value))).writeToBuffer());
+    await methodChannel.invokeMethod(UpdateManagerMethod.update.rawValue,
+        ProtoUpdateWithImageCallArguments(deviceUuid: this._deviceId, images: images.entries.map((e) => Pair(key: e.key, value: e.value))).writeToBuffer());
   }
 
   @override
-  Future<void> update(List<Tuple2<int, Uint8List>> images,
-          {FirmwareUpgradeConfiguration configuration =
-              const FirmwareUpgradeConfiguration()}) async =>
+  Future<void> update(List<Tuple2<int, Uint8List>> images, {FirmwareUpgradeConfiguration configuration = const FirmwareUpgradeConfiguration()}) async =>
       await methodChannel.invokeMethod(
           UpdateManagerMethod.update.rawValue,
           ProtoUpdateWithImageCallArguments(
@@ -102,29 +97,24 @@ class DeviceUpdateManager extends FirmwareUpdateManager {
 
   @override
   Future<void> pause() async {
-    await methodChannel.invokeMethod(
-        UpdateManagerMethod.pause.rawValue, _deviceId);
+    await methodChannel.invokeMethod(UpdateManagerMethod.pause.rawValue, _deviceId);
     _updateInProgressStreamController!.add(false);
   }
 
   @override
   Future<void> resume() async {
-    await methodChannel.invokeMethod(
-        UpdateManagerMethod.resume.rawValue, _deviceId);
+    await methodChannel.invokeMethod(UpdateManagerMethod.resume.rawValue, _deviceId);
     _updateInProgressStreamController!.add(true);
   }
 
   @override
-  Future<void> cancel() async => await methodChannel.invokeMethod(
-      UpdateManagerMethod.cancel.rawValue, _deviceId);
+  Future<void> cancel() async => await methodChannel.invokeMethod(UpdateManagerMethod.cancel.rawValue, _deviceId);
 
   @override
-  Future<bool> inProgress() async => await methodChannel.invokeMethod(
-      UpdateManagerMethod.isInProgress.rawValue, _deviceId);
+  Future<bool> inProgress() async => await methodChannel.invokeMethod(UpdateManagerMethod.isInProgress.rawValue, _deviceId);
 
   @override
-  Future<bool> isPaused() async => await methodChannel.invokeMethod(
-      UpdateManagerMethod.isPaused.rawValue, _deviceId);
+  Future<bool> isPaused() async => await methodChannel.invokeMethod(UpdateManagerMethod.isPaused.rawValue, _deviceId);
 
   void _setupStreams() {
     _setupProgressUpdateStream();
@@ -136,8 +126,7 @@ class DeviceUpdateManager extends FirmwareUpdateManager {
         .map((event) => ProtoProgressUpdateStreamArg.fromBuffer(event))
         .where((event) => event.uuid == _deviceId)
         .where((event) => event.hasProgressUpdate())
-        .listen((event) =>
-            _progressStreamController.add(event.progressUpdate.convert()));
+        .listen((event) => _progressStreamController.add(event.progressUpdate.convert()));
   }
 
   void _setupUpdateStateStream() {
@@ -180,19 +169,13 @@ class DeviceUpdateManager extends FirmwareUpdateManager {
 
   @override
   Future<void> kill() async {
-    [
-      _progressStreamController,
-      _updateInProgressStreamController,
-      _updateStateStreamController,
-      _logMessageStreamController
-    ].forEach((sc) {
+    [_progressStreamController, _updateInProgressStreamController, _updateStateStreamController, _logMessageStreamController].forEach((sc) {
       if (!(sc?.isClosed == true)) {
         sc?.close();
       }
     });
 
-    await methodChannel.invokeMethod(
-        UpdateManagerMethod.kill.rawValue, _deviceId);
+    await methodChannel.invokeMethod(UpdateManagerMethod.kill.rawValue, _deviceId);
   }
 
   @override

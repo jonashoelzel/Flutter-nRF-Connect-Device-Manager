@@ -7,8 +7,6 @@
 // For information on using the generated types, please see the documentation:
 //   https://github.com/apple/swift-protobuf/
 
-/// package no.nordicsemi.android.mcumgr_flutter.gen;
-
 import Foundation
 import SwiftProtobuf
 
@@ -194,7 +192,7 @@ struct ProtoUpdateStateChanges {
 
 extension ProtoUpdateStateChanges.FirmwareUpgradeState: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [ProtoUpdateStateChanges.FirmwareUpgradeState] = [
+  static let allCases: [ProtoUpdateStateChanges.FirmwareUpgradeState] = [
     .none,
     .validate,
     .upload,
@@ -270,7 +268,7 @@ struct ProtoFirmwareUpgradeConfiguration {
 
 extension ProtoFirmwareUpgradeConfiguration.ImageUploadAlignment: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [ProtoFirmwareUpgradeConfiguration.ImageUploadAlignment] = [
+  static let allCases: [ProtoFirmwareUpgradeConfiguration.ImageUploadAlignment] = [
     .disabled,
     .twoByte,
     .fourByte,
@@ -474,7 +472,7 @@ struct ProtoLogMessage {
 
 extension ProtoLogMessage.LogCategory: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [ProtoLogMessage.LogCategory] = [
+  static let allCases: [ProtoLogMessage.LogCategory] = [
     .transport,
     .config,
     .crash,
@@ -490,7 +488,7 @@ extension ProtoLogMessage.LogCategory: CaseIterable {
 
 extension ProtoLogMessage.LogLevel: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [ProtoLogMessage.LogLevel] = [
+  static let allCases: [ProtoLogMessage.LogLevel] = [
     .debug,
     .verbose,
     .info,
