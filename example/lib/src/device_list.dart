@@ -12,16 +12,29 @@ class DeviceList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    flutterBluePlus.startScan(timeout: Duration(seconds: 2));
-    return StreamBuilder(
-        stream: flutterBluePlus.scanResults.scan<Set<ScanResult>>((accumulated, value, index) => ((accumulated) ?? Set()).concat(value.toSet()), Set()),
-        builder: (c, s) {
-          if ((s.connectionState == ConnectionState.active || s.connectionState == ConnectionState.done) && s.hasData) {
-            return _buildListView((s.data as Set<ScanResult>).toList());
-          } else {
-            return CircularProgressIndicator();
-          }
-        });
+    return FutureBuilder(
+      future: _startScan(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData)
+          return CircularProgressIndicator();
+        return StreamBuilder(
+            stream: flutterBluePlus.scanResults.scan<Set<ScanResult>>((accumulated, value, index) => ((accumulated) ?? Set()).concat(value.toSet()), Set()),
+            builder: (c, s) {
+              if ((s.connectionState == ConnectionState.active || s.connectionState == ConnectionState.done) && s.hasData) {
+                return _buildListView((s.data as Set<ScanResult>).toList());
+              } else {
+                return CircularProgressIndicator();
+              }
+            });
+      }
+    );
+  }
+
+  Future<void> _startScan() async {
+    if (flutterBluePlus.isScanningNow) {
+      await flutterBluePlus.stopScan();
+    }
+    flutterBluePlus.startScan(timeout: Duration(seconds: 5));
   }
 
   ListView _buildListView(List<ScanResult> scanResults) {
