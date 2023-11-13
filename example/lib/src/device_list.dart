@@ -29,10 +29,10 @@ class DeviceList extends StatelessWidget {
   }
 
   Future<bool> _startScan() async {
-    if (FlutterBluePlus.isScanningNow) {
-      await FlutterBluePlus.stopScan();
+    if (flutterBluePlus.isScanningNow) {
+      await flutterBluePlus.stopScan();
     }
-    FlutterBluePlus.startScan(timeout: Duration(seconds: 5));
+    flutterBluePlus.startScan(timeout: Duration(seconds: 5));
     return true;
   }
 
