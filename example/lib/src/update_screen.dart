@@ -49,7 +49,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
   Widget _buildMainBody(BuildContext context) {
     if (uManager == null) {
       return FutureBuilder(
-          future: _unpackData(context, widget.asset),
+          future: _unpackBinData(context, widget.asset),
           builder: (c, a) {
             if (a.hasData) {
               uManager = a.data as FirmwareUpdateManager;
@@ -166,6 +166,20 @@ class _UpdateScreenState extends State<UpdateScreen> {
         await FirmwareUpdateManagerFactory().getUpdateManager(widget.deviceId);
     updateManager.setup();
     await updateManager.update(fwScheme);
+    return updateManager;
+  }
+
+  Future<FirmwareUpdateManager> _unpackBinData(BuildContext context, String asset) async {
+    List<Tuple2<int, Uint8List>> fwScheme = [];
+    final assetData = await DefaultAssetBundle.of(context).load(asset);
+    final buffer = assetData.buffer;
+
+    fwScheme.add(Tuple2(0, buffer.asUint8List(assetData.offsetInBytes, assetData.lengthInBytes)));
+
+    final updateManager = await FirmwareUpdateManagerFactory().getUpdateManager(widget.deviceId);
+    updateManager.setup();
+    await updateManager.update(fwScheme);
+
     return updateManager;
   }
 }
