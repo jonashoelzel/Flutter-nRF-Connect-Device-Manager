@@ -23,6 +23,7 @@ dependencies:
     path: ../
 
   cupertino_icons: ^1.0.0
+  flutter_blue_plus: ^1.29.5
 
 dev_dependencies:
   flutter_test:
