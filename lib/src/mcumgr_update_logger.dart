@@ -14,13 +14,13 @@ extension _Invocation on MethodChannel {
 }
 
 class McuMgrLogger extends FirmwareUpdateLogger {
-  StreamController<McuLogMessage> _logMessageStreamController =
-      StreamController.broadcast();
-  final String _deviceId;
 
   McuMgrLogger.deviceIdentifier(this._deviceId) {
     _setupLogMessageStream();
   }
+  final StreamController<McuLogMessage> _logMessageStreamController =
+      StreamController.broadcast();
+  final String _deviceId;
 
   @override
   Stream<McuLogMessage> get logMessageStream =>
@@ -41,17 +41,18 @@ class McuMgrLogger extends FirmwareUpdateLogger {
       ..uuid = _deviceId
       ..clearLogs = clearLogs;
 
-    final data = await methodChannel.invoke(
+    final data = await methodChannel.invoke<List<int>>(
         UpdateLoggerMethod.readLogs, readLogCallArguments.writeToBuffer());
 
-    final proto = ProtoReadMessagesResponse.fromBuffer(data);
+    final proto = ProtoReadMessagesResponse.fromBuffer(data ?? <int>[]);
     return proto.protoLogMessage.map((e) => e.convent()).toList();
   }
 
   void _setupLogMessageStream() {
     UpdateLoggerChannel.logEventChannel
         .receiveBroadcastStream()
-        .map((event) => ProtoLogMessageStreamArg.fromBuffer(event))
+        .cast<List<int>>()
+        .map(ProtoLogMessageStreamArg.fromBuffer)
         .where((event) => event.uuid == _deviceId)
         .listen((data) {
       if (data.hasError() && !_logMessageStreamController.isClosed) {

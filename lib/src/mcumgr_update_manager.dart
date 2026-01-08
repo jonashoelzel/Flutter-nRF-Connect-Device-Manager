@@ -134,17 +134,18 @@ class DeviceUpdateManager extends FirmwareUpdateManager {
       UpdateManagerMethod.cancel.rawValue, _deviceId);
 
   @override
-  Future<bool> inProgress() async => await methodChannel.invokeMethod(
-      UpdateManagerMethod.isInProgress.rawValue, _deviceId);
+  Future<bool> inProgress() async => await methodChannel.invokeMethod<bool>(
+      UpdateManagerMethod.isInProgress.rawValue, _deviceId) ?? false;
 
   @override
-  Future<bool> isPaused() async => await methodChannel.invokeMethod(
-      UpdateManagerMethod.isPaused.rawValue, _deviceId);
+  Future<bool> isPaused() async => await methodChannel.invokeMethod<bool>(
+      UpdateManagerMethod.isPaused.rawValue, _deviceId) ?? false;
 
   void _setupProgressUpdateStream() {
     UpdateManagerChannel.progressStream
         .receiveBroadcastStream()
-        .map((event) => ProtoProgressUpdateStreamArg.fromBuffer(event))
+        .cast<List<int>>()
+        .map(ProtoProgressUpdateStreamArg.fromBuffer)
         .where((event) => event.uuid == _deviceId)
         .where((event) => event.hasProgressUpdate())
         .listen((event) =>
@@ -154,7 +155,8 @@ class DeviceUpdateManager extends FirmwareUpdateManager {
   void _setupUpdateStateStream() {
     UpdateManagerChannel.updateStateStream
         .receiveBroadcastStream()
-        .map((event) => ProtoUpdateStateChangesStreamArg.fromBuffer(event))
+        .cast<List<int>>()
+        .map(ProtoUpdateStateChangesStreamArg.fromBuffer)
         .where((event) => event.uuid == _deviceId)
         .listen((data) async {
       if (data.hasError()) {
@@ -208,10 +210,11 @@ class DeviceUpdateManager extends FirmwareUpdateManager {
 
   @override
   Future<List<ImageSlot>?> readImageList() async {
-    final response = await methodChannel.invokeMethod(
+    final response = await methodChannel.invokeMethod<List<int>>(
         UpdateManagerMethod.readImageList.rawValue, _deviceId);
 
-    final listImagesResponse = ProtoListImagesResponse.fromBuffer(response);
+    final listImagesResponse = 
+        ProtoListImagesResponse.fromBuffer(response ?? <int>[]);
     if (listImagesResponse.existing) {
       return listImagesResponse.images.map((e) => e.convert()).toList();
     } else {
