@@ -32,14 +32,14 @@ class _PeripheralListState extends State<PeripheralList> {
   FutureBuilder<void> _body() {
     return FutureBuilder(
         future: repository.startScan(),
-        builder: (context, AsyncSnapshot snapshot) {
+        builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done &&
               !snapshot.hasError) {
             return StreamBuilder(
                 stream: repository.deviceState,
-                builder: (context, AsyncSnapshot snapshot) {
+                builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    final state = snapshot.data;
+                    final state = snapshot.data!;
                     return _bluetoothState(state);
                   } else if (snapshot.hasError) {
                     return Text('${snapshot.error}');
@@ -61,9 +61,9 @@ class _PeripheralListState extends State<PeripheralList> {
       case BluetoothAdapterState.on:
         return StreamBuilder(
             stream: repository.discoveredPeripherals,
-            builder: (context, AsyncSnapshot snapshot) {
+            builder: (context, snapshot) {
               if (snapshot.hasData) {
-                final peripherals = snapshot.data;
+                final peripherals = snapshot.data!;
                 return _peripheralList(peripherals);
               } else if (snapshot.hasError) {
                 return Text('${snapshot.error}');
@@ -84,14 +84,14 @@ class _PeripheralListState extends State<PeripheralList> {
     }
   }
 
-  Widget _peripheralList(peripherals) {
+  Widget _peripheralList(List<ScanResult> peripherals) {
     return ListView.builder(
       itemCount: peripherals.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title: Text(peripherals[index].device.name),
+          title: Text(peripherals[index].device.advName),
           onTap: () {
-            ScanResult p = peripherals[index];
+            final p = peripherals[index];
 
             context.read<FirmwareUpdateRequestProvider>().setPeripheral(
                 SelectedPeripheral(

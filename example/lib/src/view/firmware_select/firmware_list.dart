@@ -49,9 +49,9 @@ class FirmwareList extends StatelessWidget {
     return Container(
       child: FutureBuilder(
           future: repository.getFirmwareImages(),
-          builder: (context, AsyncSnapshot snapshot) {
+          builder: (context, snapshot) {
             if (snapshot.hasData) {
-              List<Application> apps = snapshot.data.applications;
+              final apps = snapshot.data!.applications;
               return _listBuilder(apps);
             } else if (snapshot.hasError) {
               return Text('${snapshot.error}');

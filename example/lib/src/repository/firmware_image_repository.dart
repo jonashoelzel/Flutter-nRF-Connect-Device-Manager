@@ -12,7 +12,7 @@ class FirmwareImageRepository {
   Future<ApplicationResponse> getFirmwareImages() async {
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == HttpStatus.ok) {
-      Map<String, dynamic> jsonBody = json.decode(response.body);
+      final jsonBody = json.decode(response.body) as Map<String, dynamic>;
       return ApplicationResponse.fromJson(jsonBody);
     } else {
       throw Exception('Failed to load firmware images');

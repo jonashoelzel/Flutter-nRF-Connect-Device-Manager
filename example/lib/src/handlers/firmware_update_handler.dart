@@ -95,7 +95,7 @@ class FirmwareUnpacker extends FirmwareUpdateHandler {
     // read manifest.json
     final manifestFile = File('${destinationDir.path}/manifest.json');
     final manifestString = await manifestFile.readAsString();
-    Map<String, dynamic> manifestJson = json.decode(manifestString);
+    final manifestJson = json.decode(manifestString) as Map<String, dynamic>;
     Manifest manifest;
 
     try {
